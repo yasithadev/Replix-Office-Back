@@ -28,6 +28,8 @@ public class UserDetailsImpl implements UserDetails {
     private boolean enabled;
 
     public static UserDetailsImpl build(User user) {
+
+        //TODO:Authorities need to extract by user
         SimpleGrantedAuthority simpleGrantedAuthority= new SimpleGrantedAuthority("APP_USER");
         //List<SimpleGrantedAuthority> simpleGrantedAuthorityList = new ArrayList<SimpleGrantedAuthority>();
         //simpleGrantedAuthorityList.add(simpleGrantedAuthority);

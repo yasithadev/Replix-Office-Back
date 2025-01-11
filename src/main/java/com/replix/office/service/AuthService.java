@@ -1,6 +1,8 @@
 package com.replix.office.service;
 
+import com.replix.office.dtos.ApiResponseDto;
 import com.replix.office.security.UserDetailsImpl;
+import com.replix.office.security.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,16 +24,16 @@ public class AuthService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    //@Autowired
-    //private JwtUtils jwtUtils;
+    @Autowired
+    private JwtUtils jwtUtils;
 
 
-    public ResponseEntity<?> signInUser(SignInRequestDto signInRequestDto) {
+    public ResponseEntity<ApiResponseDto<?>> signInUser(SignInRequestDto signInRequestDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(signInRequestDto.getEmail(), signInRequestDto.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+        String jwt = jwtUtils.generateJwtToken(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         List<String> roles = userDetails.getAuthorities().stream()
@@ -47,6 +49,11 @@ public class AuthService {
                 .roles(roles)
                 .build();
 
-        return ResponseEntity.ok(signInResponseDto);
+        return ResponseEntity.ok(
+                ApiResponseDto.builder()
+                        .isSuccess(true)
+                        .message("Sign in successfull!")
+                        .response(signInResponseDto)
+                        .build());
     }
 }
