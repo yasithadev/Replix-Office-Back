@@ -1,7 +1,11 @@
 package com.replix.office.security.jwt;
 
+import com.replix.office.security.UserDetailsImpl;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.*;
@@ -11,21 +15,21 @@ import java.util.Date;
 
 @Component
 public class JwtUtils {
-    //private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    //@Value("${app.jwtSecret}")
-    private String jwtSecret="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+    @Value("${app.jwtSecret}")
+    private String jwtSecret;
 
-    //@Value("${app.jwtExpirationMs}")//TODO:set fromproperty file
-    private int jwtExpirationMs=300000;
+    @Value("${app.jwtExpirationMs}")
+    private int jwtExpirationMs;
 
     public String generateJwtToken(Authentication authentication) {
 
-        //UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-
+        UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+        logger.debug("userPrincipal.getEmail() " + userPrincipal.getEmail());
         return Jwts.builder()
-                .setSubject("yasitha.dev@gmail.com")
-                .setIssuedAt(new Date())//replace util date with date time API
+                .setSubject(userPrincipal.getEmail())
+                .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(this.key(), SignatureAlgorithm.HS256)
                 .compact();
@@ -33,14 +37,16 @@ public class JwtUtils {
     }
 
     private Key key() {
+        logger.debug("jwtSecret " +jwtSecret);
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
     public String getUserNameFromJwtToken(String token) {
-      /*  return Jwts.parserBuilder().setSigningKey(key()).build()
+        logger.debug(" jwt body" + Jwts.parserBuilder().setSigningKey(key()).build()
+                .parseClaimsJws(token).getBody());
+      return Jwts.parserBuilder().setSigningKey(key()).build()
                 .parseClaimsJws(token).getBody().getSubject();
-       */
-        return "yasitha.dev@gmail.com";
+       // return "yasitha.dev@gmail.com";
     }
 
     public boolean validateJwtToken(String authToken) {
@@ -48,17 +54,13 @@ public class JwtUtils {
             Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
             return true;
         } catch (MalformedJwtException e) {
-           System.out.println("Invalid JWT token: {}"+ e.getMessage());//TODO:remove after enabling logger
-           // logger.error("Invalid JWT token: {}", e.getMessage());//TODO:enable logger
+           logger.error("Invalid JWT token: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
-           System.out.println("Invalid JWT token: {}"+ e.getMessage());//TODO:remove after enabling logger
-            //logger.error("JWT token is expired: {}", e.getMessage());//TODO:enable logger
+           logger.error("JWT token is expired: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
-           System.out.println("JWT token is unsupported: {}"+ e.getMessage());//TODO:remove after enabling logger
-            //logger.error("JWT token is unsupported: {}", e.getMessage());//TODO:enable logger
+           logger.error("JWT token is unsupported: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
-           System.out.println("WT claims string is empty: {}"+ e.getMessage());//TODO:remove after enabling logger
-            //logger.error("JWT claims string is empty: {}", e.getMessage());//TODO:enable logger
+           logger.error("JWT claims string is empty: {}", e.getMessage());
         }
         return false;
     }
