@@ -1,6 +1,8 @@
 package com.replix.office.security;
 
 import com.replix.office.models.User;
+import com.replix.office.security.jwt.JwtUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -10,6 +12,9 @@ import org.springframework.stereotype.Service;
 public class UserDetailsServiceImpl implements UserDetailsService {
     //@Autowired
     //UserRepository userRepository;
+
+    @Autowired
+    private JwtUtils jwtUtils;
 
     @Override
     //@Transactional
@@ -24,5 +29,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         user.setEnabled(true);
         //user.setRoles();
         return UserDetailsImpl.build(user);
+    }
+
+    public UserDetails getUserDetailsFromJwtToken(String jwt) {
+        return jwtUtils.getUserDetailsFromJwtToken(jwt);
     }
 }

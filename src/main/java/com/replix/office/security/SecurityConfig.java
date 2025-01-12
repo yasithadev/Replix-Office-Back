@@ -1,6 +1,7 @@
 package com.replix.office.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,11 +16,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+    //=tokenBased
+    @Value("${replix.auth.filter.userdetails:null}")
+    private String authFilter;
 
     @Autowired
     UserDetailsServiceImpl userDetailsService;
@@ -46,8 +51,19 @@ public class SecurityConfig {
         return authProvider;
     }
     @Bean
-    public AuthTokenFilter authenticationJwtTokenFilter() {
-        return new AuthTokenFilter();
+    public OncePerRequestFilter authenticationJwtTokenFilter() {
+        System.out.println("-----------------authFilter--------------- " +authFilter);//TODO:log
+        if(authFilter.equals("tokenBased")){
+            System.out.println("----------------created tokenBased user details filter--------------- ");//TODO:log
+            return new AuthTokenFilterJwtUserDetails();
+        } else if (authFilter.equals("daoBased")) {
+            System.out.println("----------------created daoBased user details filter--------------- ");//TODO:log
+            return new AuthTokenFilterDaoUserDetails();
+        }
+        else{
+            System.out.println("----------------created daoBased user details filter as default filter--------------- ");//TODO:log
+            return new AuthTokenFilterDaoUserDetails();
+        }
     }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

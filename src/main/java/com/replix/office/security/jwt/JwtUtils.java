@@ -1,5 +1,9 @@
 package com.replix.office.security.jwt;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.replix.office.models.User;
 import com.replix.office.security.UserDetailsImpl;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -7,11 +11,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.*;
 
 import java.security.Key;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtUtils {
@@ -32,6 +42,7 @@ public class JwtUtils {
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(this.key(), SignatureAlgorithm.HS256)
+                .claim("Authorities","[\"APP_USER\"]")
                 .compact();
         //return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
     }
@@ -48,7 +59,29 @@ public class JwtUtils {
                 .parseClaimsJws(token).getBody().getSubject();
        // return "yasitha.dev@gmail.com";
     }
+    public UserDetails getUserDetailsFromJwtToken(String jwt) {
+        Claims jwtBodyclaims = Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(jwt).getBody();
+        System.out.println("jwtBodyclaims " + jwtBodyclaims);//TODO:Add logs
+        String jsonAuthorities =(String)jwtBodyclaims.get("Authorities");
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            List<String> AuthoritiesList = mapper.readValue(jsonAuthorities, new TypeReference<List<String>>() {});
+            System.out.println("Authorities array " + AuthoritiesList);//TODO:Add logs
+            List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+            for(String Auth: AuthoritiesList) authorities.add(new SimpleGrantedAuthority(Auth));
 
+            return new UserDetailsImpl(
+                    1L,
+                    jwtBodyclaims.getSubject(),
+                    jwtBodyclaims.getSubject(),
+                    null,
+                    authorities,
+                    true);
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public boolean validateJwtToken(String authToken) {
        try {
             Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
@@ -64,4 +97,22 @@ public class JwtUtils {
         }
         return false;
     }
+/*
+    public Collection<? extends GrantedAuthority> getAuthorities(String jwt) {
+        //TODO:ADD Logs
+        System.out.println("Authorities " + Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(jwt).getBody().get("Authorities"));
+        String jsonAuthorities =(String)Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(jwt).getBody().get("Authorities");
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            List<String> AuthoritiesList = mapper.readValue(jsonAuthorities, new TypeReference<List<String>>() {});
+            System.out.println("Authorities array " + AuthoritiesList);//TODO:Add logs
+            List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+            for(String Auth: AuthoritiesList) authorities.add(new SimpleGrantedAuthority(Auth));
+            return authorities;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+*/
+
 }

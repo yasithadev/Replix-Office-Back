@@ -5,6 +5,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,28 +21,29 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AuthTokenFilter extends OncePerRequestFilter {
+public class AuthTokenFilterJwtUserDetails extends OncePerRequestFilter {
     @Autowired
     private JwtUtils jwtUtils;
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
-    //private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilterJwtUserDetails.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String jwt = parseJwt(request);
         if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
-            System.out.println("valid tolken");
-            String username = jwtUtils.getUserNameFromJwtToken(jwt);//TODO: need to implement getUserNameFromJwtToken method body
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);//TODO: need to implement loadUserByUsername method body
+            System.out.println("valid tolken");//TODO:add logs
+            UserDetails userDetails = userDetailsService.getUserDetailsFromJwtToken(jwt);//TODO: need to implement loadUserByUsername method body
+            //UserDetails userDetails = jwtUtils.getUserDetailsFromJwtToken(jwt);//jwtUtils.getAuthorities(jwt) //this willreduce stack size than above
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
-                            userDetails.getAuthorities());
+                            userDetails.getAuthorities()
+                    );
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             //System.out.println(SecurityContextHolder.getContext());
@@ -54,7 +57,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             System.out.println(" ========  " + headerAuth.substring(7));
             return headerAuth.substring(7);
         }
-
         return null;
     }
 }
