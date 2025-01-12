@@ -35,14 +35,14 @@ public class JwtUtils {
 
     public String generateJwtToken(Authentication authentication) {
 
-        UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-        logger.debug("userPrincipal.getEmail() " + userPrincipal.getEmail());
+        UserDetailsImpl UserDetails = (UserDetailsImpl) authentication.getPrincipal();
+        logger.debug("userPrincipal.getEmail() " + UserDetails.getEmail());
         return Jwts.builder()
-                .setSubject(userPrincipal.getEmail())
+                .setSubject(UserDetails.getEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(this.key(), SignatureAlgorithm.HS256)
-                .claim("Authorities","[\"APP_USER\"]")
+                .claim("Authorities",UserDetails.getAuthoritiesJsonString())
                 .compact();
         //return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
     }
@@ -76,6 +76,7 @@ public class JwtUtils {
                     jwtBodyclaims.getSubject(),
                     null,
                     authorities,
+                    jsonAuthorities,
                     true);
 
         } catch (JsonProcessingException e) {
@@ -97,22 +98,4 @@ public class JwtUtils {
         }
         return false;
     }
-/*
-    public Collection<? extends GrantedAuthority> getAuthorities(String jwt) {
-        //TODO:ADD Logs
-        System.out.println("Authorities " + Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(jwt).getBody().get("Authorities"));
-        String jsonAuthorities =(String)Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(jwt).getBody().get("Authorities");
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            List<String> AuthoritiesList = mapper.readValue(jsonAuthorities, new TypeReference<List<String>>() {});
-            System.out.println("Authorities array " + AuthoritiesList);//TODO:Add logs
-            List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-            for(String Auth: AuthoritiesList) authorities.add(new SimpleGrantedAuthority(Auth));
-            return authorities;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-*/
-
 }
