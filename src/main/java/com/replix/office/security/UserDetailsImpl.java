@@ -16,7 +16,7 @@ import com.replix.office.models.User;
 public class UserDetailsImpl implements UserDetails {
     @Serial
     private static final long serialVersionUID = 1L;
-    private Long id;
+    private Integer id;
     private String username;
     private String email;
     @JsonIgnore
@@ -49,7 +49,7 @@ public class UserDetailsImpl implements UserDetails {
                 user.getPassword(),
                 authorities,
                 authoritiesJsonStringJoiner.toString(),
-                user.isEnabled());
+                user.getActive());
     }
     @Override
     public boolean isAccountNonExpired() {

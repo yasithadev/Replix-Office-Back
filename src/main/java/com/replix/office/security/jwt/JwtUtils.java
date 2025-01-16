@@ -71,7 +71,7 @@ public class JwtUtils {
             for(String Auth: AuthoritiesList) authorities.add(new SimpleGrantedAuthority(Auth));
 
             return new UserDetailsImpl(
-                    1L,
+                    1,
                     jwtBodyclaims.getSubject(),
                     jwtBodyclaims.getSubject(),
                     null,
