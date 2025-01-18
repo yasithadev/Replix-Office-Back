@@ -32,8 +32,8 @@ public class AuthTokenFilterDaoUserDetails  extends OncePerRequestFilter {
         String jwt = parseJwt(request);
         if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
             System.out.println("valid tolken");//TODO:add logs
-            String username = jwtUtils.getUserNameFromJwtToken(jwt);//TODO: need to implement getUserNameFromJwtToken method body
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);//TODO: need to implement loadUserByUsername method body
+            String subject = jwtUtils.getSubjectFromJwtToken(jwt);
+            UserDetails userDetails = userDetailsService.loadUserByEmail(subject);
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             userDetails,

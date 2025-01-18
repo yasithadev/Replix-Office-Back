@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -22,20 +23,17 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
-    @Override
-    //@Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByEmail(String email) throws UsernameNotFoundException {//ToDo:create new Exception type EmailNotFoundException(Should Extend Authentication Exception)
+        User user= userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User Not Found with email: " + email));
+        System.out.println("/////////////////////users : " + user.getUsername() + " ////////////");
+        return UserDetailsImpl.build(user);
+    }
 
-        List<User> users= userRepository.findByEmail(username);
-        System.out.println("/////////////////////users : " + users.get(0).getUsername() + " ////////////");
-        //        .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
-        var user = new User();
-        user.setId(1);
-        user.setUsername("Yasitha Bandara");
-        user.setEmail("yasitha.dev@gmail.com");
-        user.setPassword("$2a$12$Co1qHqSYZwmYw11CrgA51u6l8Le8072XR/Ft1ZC7EdbUJl0PXVF8.");//bycript hash for yasitha@123
-        user.setActive(true);
-        //user.setRoles();
+    @Override
+    //@Transactional//when signin ,spring use this method.so, cannot change the method name
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user= userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+        System.out.println("/////////////////////users : " + user.getUsername() + " ////////////");//TODO:add proper logs
         return UserDetailsImpl.build(user);
     }
 
