@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import java.sql.Timestamp;
@@ -54,5 +55,8 @@ public class User {
 
     @Column(name = "created_on", insertable = false, updatable = false)
     private Timestamp createdOn;
+
+    @OneToMany(mappedBy = "user")
+    private List<UserRole> userRoles;
 
 }
