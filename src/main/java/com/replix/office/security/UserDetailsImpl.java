@@ -1,6 +1,7 @@
 package com.replix.office.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.replix.office.models.Permission;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serial;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.replix.office.models.User;
 @AllArgsConstructor
@@ -25,30 +27,38 @@ public class UserDetailsImpl implements UserDetails {
     private String authoritiesJsonString;
     private boolean enabled;
 
-    public static UserDetailsImpl build(User user) {
-
-        //TODO:Authorities need to extract from user model
+    public static UserDetailsImpl build(User user,List<Permission> permissions) {
+    /*
         StringJoiner authoritiesJsonStringJoiner = new StringJoiner(",", "[", "]");
 
         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 
-        //TODO:should happen within for loops
             SimpleGrantedAuthority simpleGrantedAuthority= new SimpleGrantedAuthority("APP_USER");
             authorities.add(simpleGrantedAuthority);
             authoritiesJsonStringJoiner.add("\"APP_USER\"");
-            //TODO:2nd iteration
+
+            //2nd authorities
             SimpleGrantedAuthority simpleGrantedAuthority2 = new SimpleGrantedAuthority("CREAT_USER");
             authorities.add(simpleGrantedAuthority2);
             authoritiesJsonStringJoiner.add("\"CREAT_USER\"");
-        //TODO:End of the for loop
+        //End of the for loop
+    */
+        List<GrantedAuthority> authorities= permissions.stream()
+                .map((permission)->new SimpleGrantedAuthority(permission.getPermissionName()))
+                .collect(Collectors.toList());
 
+
+        String authoritiesJsonString = permissions.stream()
+                .map((permission)->"\""+permission.getPermissionName()+"\"")
+                .collect(Collectors.joining(",", "[", "]"));
+        System.out.println("------------------------------authoritiesJsonString "+authoritiesJsonString+"-------------------------");//TODO:add logs
         return new UserDetailsImpl(
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
                 user.getPassword(),
                 authorities,
-                authoritiesJsonStringJoiner.toString(),
+                authoritiesJsonString,
                 user.getActive());
     }
     @Override

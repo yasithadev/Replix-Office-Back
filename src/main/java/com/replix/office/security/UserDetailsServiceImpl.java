@@ -28,7 +28,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByEmail(String email) throws UsernameNotFoundException {//ToDo:create new Exception type EmailNotFoundException(Should Extend Authentication Exception)
         User user= userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User Not Found with email: " + email));
         System.out.println("/////////////////////users : " + user.getUsername() + " ////////////");
-        return UserDetailsImpl.build(user);
+        List<Permission> permissions= userRepository.findPermissionsByUserId(1);
+        return UserDetailsImpl.build(user,permissions);
     }
 
     @Override
@@ -41,7 +42,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         List<Permission> permissions= userRepository.findPermissionsByUserId(1);
         System.out.println("/////////////////////permissions List Size : " + permissions.size() + "//////////////");//TODO:write unit testing
         System.out.println("/////////////////////users permission sample name : " + permissions.get(0).getPermissionName() + "//////////////");//TODO:write unit testing
-        return UserDetailsImpl.build(user);
+        return UserDetailsImpl.build(user,permissions);
     }
 
     public UserDetails getUserDetailsFromJwtToken(String jwt) {
