@@ -8,15 +8,15 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "role")
-public class Role {
+@Table(name = "permission")
+public class Permission {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "role_name", nullable = false, unique = true, length = 50)
-    private String roleName;
+    @Column(name = "permission_name", nullable = false, unique = true, length = 50)
+    private String permissionName;
 
     @Column(name = "description", length = 255)
     private String description;
@@ -38,11 +38,9 @@ public class Role {
     @Column(name = "created_on", insertable = false, updatable = false)
     private Timestamp createdOn;
 
-    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
-    private List<UserRole> userRoles;
-
-    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "permission", fetch = FetchType.LAZY)
     private List<RolePermission> rolePermissions;
+
     // Getters and Setters
     // ...
 

@@ -56,7 +56,7 @@ public class User {
     @Column(name = "created_on", insertable = false, updatable = false)
     private Timestamp createdOn;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<UserRole> userRoles;
 
 }

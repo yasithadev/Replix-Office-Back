@@ -4,22 +4,23 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Timestamp;
-import java.util.List;
+import java.io.Serializable;
 
 @Data
 @Entity
-@Table(name = "role")
-public class Role {
+@Table(name = "role_permission")
+@IdClass(RolePermissionId.class)
+public class RolePermission implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
-    @Column(name = "role_name", nullable = false, unique = true, length = 50)
-    private String roleName;
-
-    @Column(name = "description", length = 255)
-    private String description;
+    @Id
+    @ManyToOne
+    @JoinColumn(name = "permission_id", nullable = false)
+    private Permission permission;
 
     @Column(name = "active", nullable = false)
     private Boolean active = true;
@@ -37,14 +38,4 @@ public class Role {
 
     @Column(name = "created_on", insertable = false, updatable = false)
     private Timestamp createdOn;
-
-    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
-    private List<UserRole> userRoles;
-
-    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
-    private List<RolePermission> rolePermissions;
-    // Getters and Setters
-    // ...
-
 }
-
