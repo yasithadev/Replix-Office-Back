@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,10 +31,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     @Override
-    //@Transactional//when signin ,spring use this method.so, cannot change the method name
+    @Transactional//when signin ,spring use this method.so, cannot change the method name
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user= userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
         System.out.println("/////////////////////users : " + user.getUsername() + " ////////////");//TODO:add proper logs
+        System.out.println("/////////////////////users roles name : " + user.getUserRoles().get(0).getRole().getRoleName() + "//////////////");
         return UserDetailsImpl.build(user);
     }
 

@@ -1,9 +1,12 @@
 package com.replix.office.models;
 
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.sql.Timestamp;
 import java.io.Serializable;
 
+@Data
 @Entity
 @Table(name = "user_role")
 @IdClass(UserRoleId.class)
