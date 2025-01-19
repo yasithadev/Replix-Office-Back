@@ -1,5 +1,6 @@
 package com.replix.office.security;
 
+import com.replix.office.models.Permission;
 import com.replix.office.models.User;
 import com.replix.office.repository.UserRepository;
 import com.replix.office.security.jwt.JwtUtils;
@@ -35,8 +36,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user= userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
         System.out.println("/////////////////////users : " + user.getUsername() + " ////////////");//TODO:add proper logs
-        System.out.println("/////////////////////users roles name : " + user.getUserRoles().get(0).getRole().getRolePermissions().size() + "//////////////");
-        System.out.println("/////////////////////users permission sample name : " + user.getUserRoles().get(0).getRole().getRolePermissions().get(0).getPermission().getPermissionName() + "//////////////");
+        System.out.println("/////////////////////users roles name : " + user.getUserRoles().get(0).getRole().getRolePermissions().size() + "//////////////");//TODO:write unit testing
+        System.out.println("/////////////////////users permission sample name : " + user.getUserRoles().get(0).getRole().getRolePermissions().get(0).getPermission().getPermissionName() + "//////////////");//TODO:write unit testing
+        List<Permission> permissions= userRepository.findPermissionsByUserId(1);
+        System.out.println("/////////////////////permissions List Size : " + permissions.size() + "//////////////");//TODO:write unit testing
+        System.out.println("/////////////////////users permission sample name : " + permissions.get(0).getPermissionName() + "//////////////");//TODO:write unit testing
         return UserDetailsImpl.build(user);
     }
 
