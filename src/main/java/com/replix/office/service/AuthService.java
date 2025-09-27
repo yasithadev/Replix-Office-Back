@@ -1,6 +1,7 @@
 package com.replix.office.service;
 
 import com.replix.office.dtos.ApiResponseDto;
+import com.replix.office.repository.UserRepository;
 import com.replix.office.security.UserDetailsImpl;
 import com.replix.office.security.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,6 @@ public class AuthService {
 
     @Autowired
     private JwtUtils jwtUtils;
-
 
     public ResponseEntity<ApiResponseDto<?>> signInUser(SignInRequestDto signInRequestDto) {
         Authentication authentication = authenticationManager.authenticate(

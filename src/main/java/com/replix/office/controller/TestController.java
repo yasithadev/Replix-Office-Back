@@ -22,7 +22,7 @@ public class TestController {
 
     @PostMapping("signin")
     public ResponseEntity<?> signInUser(@RequestBody SignInRequestDto signInRequestDto){
-        System.out.println("controller get hit");
+        System.out.println("signInRequestDto " + signInRequestDto);
         return authService.signInUser(signInRequestDto);
     }
 

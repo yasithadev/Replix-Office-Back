@@ -74,6 +74,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->{
                             auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                         auth.requestMatchers("/api/test/**").permitAll();
+                            auth.requestMatchers("/error").permitAll();
+                            /*When the validation fails (e.g. @Valid constraint violation), Spring MVC forwards to /error.
+                            But /error itself is protected by Spring Security, and since the user is anonymous, it denies access to /error.*/
         auth.anyRequest().authenticated();}
                 );
 

@@ -59,4 +59,8 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<UserRole> userRoles;
 
+    public User(Integer id){
+        this.id = id;
+    }
+
 }
