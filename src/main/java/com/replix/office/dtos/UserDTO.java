@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public class UserDTO {
-
+//TODO Cmplete validations with value length and ControllerAdvice
     @NotBlank(message = "Username is required")
     private String userName;
 

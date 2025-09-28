@@ -42,17 +42,17 @@ public class UserManagementService {
             logger.warn("Constraint violation during user creation: {}", rootMessage);
             if (rootMessage.contains("Duplicate entry")) {
                 if (rootMessage.contains("username")) {
-                    throw new UserCreationException("Username already exists. Please choose a different one.");
+                    throw new UserCreationException(40901,"USERNAME_TAKEN","Username already exists.","Username already exists. Please choose a different one.");//TODO use enum
                 } else if (rootMessage.contains("email")) {
-                    throw new UserCreationException("Email is already registered. Try logging in or use a different email.");
+                    throw new UserCreationException(40902,"EMAIL_REGISTERED","Email is already registered.","Email is already registered. Try logging in or use a different email.");//
                 } else {
-                    throw new UserCreationException("Duplicate data detected. Please check your input.");
+                    throw new UserCreationException(40900,"DATA_CONFLICT","Duplicate data detected.","");//this will be a bug.
                 }
-            }
-            throw new UserCreationException("User creation failed due to invalid or duplicate data.");
+            }//TODO Delete UserCreationException create DataConflictException.use DATA_CONFLICT errorcode .delete USERNAME_TAKEN,EMAIL_REGISTERED.add property "conflict field" .i.e conflictField:"email"
+            throw new UserCreationException(40900,"DATA_CONFLICT","Duplicate data detected.","");//this will be a bug.
         } catch (Exception ex) {
             logger.error("Unexpected error while saving user", ex);
-            throw new RuntimeException("Internal server error while saving user");
+            throw new RuntimeException("Internal server error while saving user");//TODO Cmplete with ControllerAdvice
         }
     }
 }
